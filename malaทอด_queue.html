@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#8f1f1b">
+<title>หมาล่าทอด | ระบบรันคิว</title>
+<style>
+:root{--red:#8f1f1b;--red2:#b8322b;--cream:#fff7e8;--paper:#fffdf7;--gold:#d6a84f;--ink:#43251e;--muted:#92766b;--line:#efd9b9;--green:#367a50}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#ffe9c5 0,transparent 32%),var(--cream);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(130deg,#751713,#a92b25);color:#fff7e8;padding:22px 16px 25px;text-align:center;border-bottom:5px solid var(--gold);position:relative}
+header:before,header:after{content:"🏮";position:absolute;top:18px;font-size:25px}header:before{left:18px}header:after{right:18px}
+h1{font-size:clamp(27px,6vw,38px);margin:0;letter-spacing:1px}.sub{font-size:13px;color:#f4dcae;margin-top:5px}
+.wrap{max-width:960px;margin:22px auto;padding:0 14px 40px}.tabs{display:flex;gap:8px;justify-content:center;margin:0 auto 18px}
+button,.tab{border:0;border-radius:14px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;transition:.15s}
+.tab{background:#f3e3c9;color:var(--red)}.tab.active{background:var(--red);color:#fff}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 8px 24px #6d32100d;margin-bottom:16px}
+h2{font-size:20px;margin:0 0 14px;color:var(--red)}.hint{font-size:13px;color:var(--muted);margin-top:-7px;margin-bottom:15px}
+label{display:block;font-size:13px;font-weight:700;margin:10px 0 5px}input,textarea,select{width:100%;border:1px solid #e5cda8;border-radius:12px;padding:12px;background:#fffdf9;color:var(--ink);font:inherit;outline:none}input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px #d6a84f22}
+button.primary{background:var(--red);color:#fff}button.gold{background:var(--gold);color:#492a14}button.ghost{background:#f6ead7;color:var(--red)}button.danger{background:#fbe5e1;color:#9b2b23}button:disabled{opacity:.5;cursor:not-allowed}
+.searchrow{display:flex;gap:8px}.searchrow input{flex:1;min-width:0}.result{margin-top:14px;padding:17px;border-radius:16px;background:#fff5e4;border:1px dashed var(--gold);display:none}.bigq{font-size:42px;font-weight:900;color:var(--red);line-height:1.1}.status{display:inline-block;border-radius:999px;padding:6px 11px;background:#ffedc8;color:#8a4e0b;font-size:12px;font-weight:800;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.full{grid-column:1/-1}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.actions button{font-size:13px;padding:9px 12px}
+.order{border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:10px;background:#fffdfa}.orderhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.qtag{font-size:25px;color:var(--red);font-weight:900}.small{font-size:12px;color:var(--muted);line-height:1.6}.money{font-weight:900;color:var(--red)}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.hidden{display:none!important}.notice{padding:11px 13px;border-radius:12px;background:#fff2d9;color:#80531b;font-size:13px;margin:10px 0}.ok{background:#e9f5eb;color:#28633b}.err{background:#ffebe8;color:#982c24}.empty{text-align:center;color:var(--muted);padding:22px}.footer{text-align:center;color:#a58b72;font-size:12px;margin-top:20px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.panel{padding:16px}.searchrow{flex-direction:column}.tabs{width:100%}.tab{flex:1}.orderhead{align-items:center}}
+</style>
+</head>
+<body>
+<header><h1>🌶️ หมาล่าทอด</h1><div class="sub">ระบบจัดการคิว • สดใหม่ ร้อนแรง ทุกออเดอร์</div></header>
+<main class="wrap">
+  <div class="tabs"><button class="tab active" id="customerTab">🔎 ค้นหาคิว</button><button class="tab" id="sellerTab">🏮 สำหรับร้านค้า</button></div>
+
+  <section id="customerView">
+    <div class="panel">
+      <h2>🔢 เช็กสถานะคิวของคุณ</h2>
+      <p class="hint">กรอกหมายเลขคิวที่ได้รับจากร้านค้า</p>
+      <div class="searchrow"><input id="queueSearch" inputmode="numeric" placeholder="เช่น 12" aria-label="หมายเลขคิว"><button class="primary" id="searchBtn">ค้นหาคิว</button></div>
+      <div class="result" id="customerResult"></div>
+      <div class="notice">หน้านี้แสดงเฉพาะหมายเลขคิวและสถานะ ไม่เปิดเผยเบอร์โทรหรือ Instagram ของลูกค้า</div>
+    </div>
+  </section>
+
+  <section id="sellerView" class="hidden">
+    <div class="panel" id="loginPanel">
+      <h2>🔐 เข้าสู่ระบบร้านค้า</h2><p class="hint">เฉพาะเจ้าของร้านหรือพนักงานที่ได้รับอนุญาต</p>
+      <label>อีเมลร้านค้า</label><input id="email" type="email" autocomplete="username" placeholder="อีเมล Firebase Authentication">
+      <label>รหัสผ่าน</label><input id="password" type="password" autocomplete="current-password" placeholder="รหัสผ่าน">
+      <div class="actions"><button class="primary" id="loginBtn">เข้าสู่ระบบ</button></div>
+      <div id="loginMsg" class="small"></div>
+      <div class="notice">สร้างบัญชีผู้ขายใน Firebase Authentication (Email/Password) ก่อนใช้งาน ไม่ควรฝังรหัสผ่านไว้ในไฟล์ HTML</div>
+    </div>
+
+    <div id="dashboard" class="hidden">
+      <div class="panel">
+        <div class="toolbar"><div><h2 style="margin-bottom:3px">📋 จัดการออเดอร์</h2><div class="small" id="signedIn"></div></div><button class="ghost" id="logoutBtn">ออกจากระบบ</button></div>
+        <div class="actions"><button class="primary" id="newOrderBtn">＋ เพิ่มออเดอร์ใหม่</button><button class="gold" id="refreshBtn">↻ รีเฟรช</button></div>
+        <div class="notice">คิวถัดไปจะรันเลขอัตโนมัติ และทุกเครื่องจะเห็นข้อมูลอัปเดตแบบเรียลไทม์</div>
+      </div>
+
+      <div class="panel hidden" id="editor">
+        <h2 id="editorTitle">เพิ่มออเดอร์</h2>
+        <input type="hidden" id="editId">
+        <div class="grid">
+          <div><label>ชื่อลูกค้า *</label><input id="customerName" placeholder="ชื่อลูกค้า"></div>
+          <div><label>เบอร์โทร</label><input id="phone" type="tel" placeholder="08x-xxx-xxxx"></div>
+          <div><label>Instagram</label><input id="instagram" placeholder="@username"></div>
+          <div><label>ยอดรวม (บาท) *</label><input id="total" type="number" min="0" step="0.01" placeholder="0.00"></div>
+          <div class="full"><label>รายการอาหาร / หมายเหตุ</label><textarea id="items" rows="2" placeholder="เช่น หมาล่าทอด 2 ไม้, เผ็ดกลาง"></textarea></div>
+          <div class="full"><label>สถานะ</label><select id="orderStatus"><option value="กำลังเตรียมอาหาร">🔥 กำลังเตรียมอาหาร</option><option value="รอรับอาหาร">🛍️ รอรับอาหาร</option><option value="รับอาหารแล้ว">✅ รับอาหารแล้ว</option></select></div>
+        </div>
+        <div class="actions"><button class="primary" id="saveBtn">บันทึกออเดอร์</button><button class="ghost" id="cancelEditBtn">ยกเลิก</button></div>
+        <div id="saveMsg" class="small"></div>
+      </div>
+
+      <div class="panel"><div class="toolbar"><h2 style="margin:0">🧾 ออเดอร์ทั้งหมด</h2><div class="small" id="orderCount">0 ออเดอร์</div></div><div id="ordersList"><div class="empty">กำลังโหลดออเดอร์…</div></div></div>
+    </div>
+  </section>
+  <div class="footer">ทำด้วยความตั้งใจ ❤️ หมาล่าทอด</div>
+</main>
+
+<!--
+ตั้งค่า Firebase ก่อนใช้งาน:
+1) สร้าง Firebase project และเปิด Authentication > Email/Password
+2) สร้าง Firestore Database แล้วนำ firebaseConfig จาก Project settings มาใส่ด้านล่าง
+3) สร้างผู้ขายใน Authentication ด้วยตนเอง
+4) วาง Firestore Rules ที่แนบไว้ท้ายไฟล์ใน Firebase Console > Firestore > Rules แล้ว Publish
+5) เปิดไฟล์ผ่านเว็บโฮสติ้ง (เช่น Firebase Hosting) ไม่ใช่ file:// เพื่อให้ Firebase ทำงานได้
+
+Firestore Rules (นำไปวางใน Firebase Console > Firestore Database > Rules):
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function seller() { return request.auth != null; }
+    match /orders/{id} {
+      allow read, write: if seller();
+    }
+    // ข้อมูลสาธารณะมีเพียงเลขคิวและสถานะ ห้ามเก็บเบอร์โทร/Instagram ใน collection นี้
+    match /publicQueues/{id} {
+      allow read: if true;
+      allow create, update, delete: if seller();
+    }
+    match /settings/{id} {
+      allow read, write: if seller();
+    }
+  }
+}
+-->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, onSnapshot, runTransaction, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔧 ใส่ค่าจาก Firebase Console > Project settings > Your apps
+const firebaseConfig = {
+  apiKey: "ใส่_API_KEY",
+  authDomain: "ใส่_PROJECT_ID.firebaseapp.com",
+  projectId: "ใส่_PROJECT_ID",
+  storageBucket: "ใส่_PROJECT_ID.appspot.com",
+  messagingSenderId: "ใส่_MESSAGING_SENDER_ID",
+  appId: "ใส่_APP_ID"
+};
+
+const configured = !Object.values(firebaseConfig).some(v => String(v).startsWith("ใส่_"));
+const $ = id => document.getElementById(id);
+const statusEmoji = s => s === "รอรับอาหาร" ? "🛍️" : s === "รับอาหารแล้ว" ? "✅" : "🔥";
+let app, auth, db, currentUser = null, stopOrders = null, orders = [];
+
+function showTab(which){
+  const customer = which === "customer";
+  $("customerView").classList.toggle("hidden", !customer);
+  $("sellerView").classList.toggle("hidden", customer);
+  $("customerTab").classList.toggle("active", customer);
+  $("sellerTab").classList.toggle("active", !customer);
+}
+$("customerTab").onclick = () => showTab("customer");
+$("sellerTab").onclick = () => showTab("seller");
+
+if (!configured) {
+  $("loginMsg").textContent = "ยังไม่ได้ตั้งค่า Firebase: กรุณาใส่ firebaseConfig ในไฟล์ HTML ก่อน";
+  $("customerResult").style.display = "block";
+  $("customerResult").innerHTML = '<div class="small">ระบบยังไม่ได้เชื่อมต่อฐานข้อมูล กรุณาติดต่อร้านค้า</div>';
+} else {
+  app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+    $("loginPanel").classList.toggle("hidden", !!user);
+    $("dashboard").classList.toggle("hidden", !user);
+    if (user) {
+      $("signedIn").textContent = "เข้าสู่ระบบแล้ว: " + user.email;
+      listenOrders();
+    } else {
+      if (stopOrders) stopOrders();
+      orders = [];
+    }
+  });
+}
+
+function listenOrders(){
+  if (stopOrders) stopOrders();
+  const q = query(collection(db,"orders"), orderBy("queue","desc"));
+  stopOrders = onSnapshot(q, snap => {
+    orders = snap.docs.map(d => ({id:d.id,...d.data()}));
+    renderOrders();
+  }, err => $("ordersList").innerHTML = `<div class="notice err">โหลดข้อมูลไม่ได้: ${escapeHtml(err.message)}</div>`);
+}
+function escapeHtml(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function renderOrders(){
+  $("orderCount").textContent = `${orders.length} ออเดอร์`;
+  if (!orders.length){$("ordersList").innerHTML='<div class="empty">ยังไม่มีออเดอร์ กด “เพิ่มออเดอร์ใหม่” เพื่อเริ่มต้น 🌶️</div>';return;}
+  $("ordersList").innerHTML = orders.map(o=>`
+    <article class="order">
+      <div class="orderhead"><div><div class="qtag">คิว #${o.queue}</div><b>${escapeHtml(o.name||"ไม่ระบุชื่อ")}</b><div class="small">${escapeHtml(o.items||"ไม่มีรายละเอียดรายการ")}</div></div><div style="text-align:right"><div class="money">${Number(o.total||0).toLocaleString("th-TH",{minimumFractionDigits:2})} ฿</div><span class="status">${statusEmoji(o.status)} ${escapeHtml(o.status||"กำลังเตรียมอาหาร")}</span></div></div>
+      <div class="small" style="margin-top:8px">📞 ${escapeHtml(o.phone||"-")}　📸 ${escapeHtml(o.instagram||"-")}</div>
+      <div class="actions"><button class="ghost" data-edit="${o.id}">✏️ แก้ไข</button><button class="gold" data-next="${o.id}">เปลี่ยนสถานะ</button><button class="danger" data-delete="${o.id}">ลบคิว</button></div>
+    </article>`).join("");
+  $("ordersList").querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>editOrder(b.dataset.edit));
+  $("ordersList").querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>nextStatus(b.dataset.next));
+  $("ordersList").querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>removeOrder(b.dataset.delete));
+}
+function resetEditor(){
+  $("editId").value=""; ["customerName","phone","instagram","total","items"].forEach(id=>$(id).value="");
+  $("orderStatus").value="กำลังเตรียมอาหาร"; $("editorTitle").textContent="เพิ่มออเดอร์"; $("saveBtn").textContent="บันทึกออเดอร์"; $("saveMsg").textContent="";
+}
+$("newOrderBtn").onclick=()=>{$("editor").classList.remove("hidden");resetEditor();$("editor").scrollIntoView({behavior:"smooth"});};
+$("cancelEditBtn").onclick=()=>{$("editor").classList.add("hidden");resetEditor();};
+function editOrder(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  $("editor").classList.remove("hidden");$("editId").value=id;
+  $("customerName").value=o.name||"";$("phone").value=o.phone||"";$("instagram").value=o.instagram||"";
+  $("total").value=o.total??"";$("items").value=o.items||"";$("orderStatus").value=o.status||"กำลังเตรียมอาหาร";
+  $("editorTitle").textContent=`แก้ไขออเดอร์คิว #${o.queue}`;$("saveBtn").textContent="บันทึกการแก้ไข";$("editor").scrollIntoView({behavior:"smooth"});
+}
+$("saveBtn").onclick=async()=>{
+  if(!currentUser)return;
+  const name=$("customerName").value.trim(), total=Number($("total").value);
+  if(!name||$("total").value===""||!Number.isFinite(total)||total<0){$("saveMsg").textContent="กรุณากรอกชื่อลูกค้าและยอดรวมให้ถูกต้อง";return;}
+  $("saveBtn").disabled=true;$("saveMsg").textContent="กำลังบันทึก…";
+  const payload={name,phone:$("phone").value.trim(),instagram:$("instagram").value.trim(),total,items:$("items").value.trim(),status:$("orderStatus").value,updatedAt:serverTimestamp()};
+  try{
+    const id=$("editId").value;
+    if(id){
+      const old=orders.find(o=>o.id===id);
+      await setDoc(doc(db,"orders",id),payload,{merge:true});
+      await setDoc(doc(db,"publicQueues",id),{queue:old.queue,status:payload.status,updatedAt:serverTimestamp()});
+    }else{
+      const orderRef=doc(collection(db,"orders"));
+      await runTransaction(db,async tx=>{
+        const counterRef=doc(db,"settings","queueCounter");
+        const counterSnap=await tx.get(counterRef);
+        const next=(counterSnap.exists()?Number(counterSnap.data().value||0):0)+1;
+        tx.set(counterRef,{value:next});
+        tx.set(orderRef,{...payload,queue:next,createdAt:serverTimestamp()});
+        tx.set(doc(db,"publicQueues",orderRef.id),{queue:next,status:payload.status,updatedAt:serverTimestamp()});
+      });
+    }
+    $("editor").classList.add("hidden");resetEditor();$("saveMsg").textContent="บันทึกเรียบร้อย";
+  }catch(e){$("saveMsg").textContent="บันทึกไม่สำเร็จ: "+e.message;}
+  finally{$("saveBtn").disabled=false;}
+};
+async function nextStatus(id){
+  const o=orders.find(x=>x.id===id);if(!o)return;
+  const states=["กำลังเตรียมอาหาร","รอรับอาหาร","รับอาหารแล้ว"],next=states[(states.indexOf(o.status)+1+states.length)%states.length];
+  try{await setDoc(doc(db,"orders",id),{status:next,updatedAt:serverTimestamp()},{merge:true});await setDoc(doc(db,"publicQueues",id),{queue:o.queue,status:next,updatedAt:serverTimestamp()},{merge:true});}
+  catch(e){alert("เปลี่ยนสถานะไม่สำเร็จ: "+e.message);}
+}
+async function removeOrder(id){
+  const o=orders.find(x=>x.id===id);if(!o||!confirm(`ยืนยันลบคิว #${o.queue} ของ ${o.name||"ลูกค้า"}?`))return;
+  try{await deleteDoc(doc(db,"orders",id));await deleteDoc(doc(db,"publicQueues",id));}
+  catch(e){alert("ลบไม่สำเร็จ: "+e.message);}
+}
+$("loginBtn").onclick=async()=>{
+  $("loginMsg").textContent="";
+  if(!configured){$("loginMsg").textContent="กรุณาตั้งค่า Firebase ก่อน";return;}
+  try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);}
+  catch(e){$("loginMsg").textContent="เข้าสู่ระบบไม่สำเร็จ ตรวจสอบอีเมลและรหัสผ่าน ("+e.code+")";}
+};
+$("logoutBtn").onclick=()=>signOut(auth);
+$("refreshBtn").onclick=()=>listenOrders();
+
+async function searchQueue(){
+  const raw=$("queueSearch").value.trim(),out=$("customerResult");
+  out.style.display="block";
+  if(!raw||! /^\d+$/.test(raw)){out.innerHTML='<div class="small">กรุณากรอกหมายเลขคิวเป็นตัวเลข</div>';return;}
+  if(!configured){out.innerHTML='<div class="small">ระบบยังไม่ได้ตั้งค่า Firebase</div>';return;}
+  out.innerHTML='<div class="small">กำลังค้นหา…</div>';
+  try{
+    const snap=await getDoc(doc(db,"publicQueues", "queue_"+raw));
+    // เอกสาร publicQueues ใช้ ID เป็น order ID จึงค้นหาด้วย query ตามหมายเลขคิว
+    const {getDocs,where}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const result=await getDocs(query(collection(db,"publicQueues"),where("queue","==",Number(raw))));
+    if(result.empty){out.innerHTML='<div class="small">ไม่พบคิวนี้ ลองตรวจสอบหมายเลขอีกครั้งนะ 🧧</div>';return;}
+    const o=result.docs[0].data();
+    out.innerHTML=`<div class="small">สถานะของคิว</div><div class="bigq">คิว #${o.queue}</div><div style="font-weight:800;margin-top:7px">${statusEmoji(o.status)} ${escapeHtml(o.status||"กำลังเตรียมอาหาร")}</div><div class="status">หมาล่าทอดกำลังดูแลออเดอร์ของคุณ</div>`;
+  }catch(e){out.innerHTML=`<div class="small">ค้นหาไม่สำเร็จ: ${escapeHtml(e.message)}</div>`;}
+}
+$("searchBtn").onclick=searchQueue;
+$("queueSearch").addEventListener("keydown",e=>{if(e.key==="Enter")searchQueue();});
+</script>
+</body>
+</html>
